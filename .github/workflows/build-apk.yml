@@ -1,41 +1,20 @@
-name: Build APK
+- name: Extract project
+  run: |
+    unzip sirdaba-android-firebase-configured.zip
+    ls -la
 
-on:
-  push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+- name: Create google-services.json
+  run: |
+    echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > sirdaba-android/app/google-services.json
 
-jobs:
-  build:
-    runs-on: ubuntu-latest
+- name: Grant execute permission for gradlew
+  run: chmod +x sirdaba-android/gradlew
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+- name: Build Debug APK
+  run: cd sirdaba-android && ./gradlew assembleDebug
 
-      - name: Set up JDK 17
-        uses: actions/setup-java@v4
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-
-      - name: Create google-services.json
-        run: |
-          echo '${{ secrets.GOOGLE_SERVICES_JSON }}' > sirdaba-android/app/google-services.json
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x sirdaba-android/gradlew
-
-      - name: Build Debug APK
-        run: cd sirdaba-android && ./gradlew assembleDebug
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: sirdaba-debug-apk
-          path: sirdaba-android/app/build/outputs/apk/debug/*.apk
+- name: Upload APK
+  uses: actions/upload-artifact@v4
+  with:
+    name: sirdaba-debug-apk
+    path: sirdaba-android/app/build/outputs/apk/debug/*.apk
