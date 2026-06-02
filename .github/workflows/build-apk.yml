@@ -19,13 +19,21 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Install Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: '8.7'
+
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
       - name: Extract project
+        run: unzip sirdaba-android-firebase-configured.zip
+
+      - name: Setup Gradle wrapper
         run: |
-          unzip sirdaba-android-firebase-configured.zip
-          ls -la
+          cd sirdaba-android
+          gradle wrapper --gradle-version 8.7
 
       - name: Create google-services.json
         run: |
